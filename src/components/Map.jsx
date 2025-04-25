@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { collection, getDocs } from 'firebase/firestore';
-import { firebaseDB } from '../firebase/config'; // Importar la configuración de Firebase
-import CircularProgress from '@mui/material/CircularProgress'; // Importar el componente CircularProgress
-import Card from '@mui/material/Card'; // Importar el componente Card
+import { firebaseDB } from '../firebase/config';
+import CircularProgress from '@mui/material/CircularProgress';
+import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button'; // Importar el componente Button
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, Add, Remove, RotateLeft, RotateRight } from '@mui/icons-material';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import './Map.css'; // Asegúrate de incluir estilos básicos para el mapa
+import './Map.css';
 
-// Configuración de Mapbox
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 export const Map = () => {
   const [map, setMap] = useState(null);
   const [lotes, setLotes] = useState([]);
-  const [lastView, setLastView] = useState({ center: [-72.2524, -45.3358], zoom: 10 }); // Reducir el zoom inicial
-  const [loading, setLoading] = useState(true); // Estado para controlar la carga
-  const [selectedLote, setSelectedLote] = useState(null); // Estado para el lote seleccionado
+  const [loading, setLoading] = useState(true);
+  const [selectedLote, setSelectedLote] = useState(null);
 
   useEffect(() => {
-    // Obtener los lotes desde Firestore
     const fetchLotes = async () => {
       try {
         const lotesCollection = collection(firebaseDB, 'lotes');
@@ -30,7 +29,6 @@ export const Map = () => {
           const data = doc.data();
           let coordinates = [];
 
-          // Parsear el campo geometry si existe
           if (data.geometry) {
             const geometry = JSON.parse(data.geometry);
             if (geometry.type === 'Polygon' && geometry.coordinates) {
@@ -40,12 +38,11 @@ export const Map = () => {
 
           return {
             id: doc.id,
-            ...data, // Incluir toda la información del lote
+            ...data,
             coordinates,
           };
         });
 
-        console.log('Lotes obtenidos:', lotesData); // Depuración
         setLotes(lotesData);
       } catch (error) {
         console.error('Error al obtener los lotes:', error);
@@ -57,49 +54,21 @@ export const Map = () => {
 
   useEffect(() => {
     if (lotes.length > 0) {
-      // Calcular los límites de los lotes
-      const bounds = new mapboxgl.LngLatBounds();
-
-      lotes.forEach((lote) => {
-        if (lote.coordinates.length > 0) {
-          lote.coordinates[0].forEach((coord) => {
-            if (Array.isArray(coord) && coord.length === 2) {
-              bounds.extend(coord);
-            }
-          });
-        }
-      });
-
-      // Inicializar el mapa centrado en los lotes o en la última vista
       const mapInstance = new mapboxgl.Map({
-        container: 'map', // ID del contenedor
-        style: 'mapbox://styles/mapbox/satellite-v9', // Estilo satelital
-        center: lastView.center,
-        zoom: lastView.zoom,
-        pitch: 45, // Configurar perspectiva de 45 grados
-        bearing: 0, // Orientación inicial
+        container: 'map',
+        style: 'mapbox://styles/mapbox/satellite-v9',
+        center: [-72.2524, -45.3358],
+        zoom: 10,
+        pitch: 60,
+        bearing: 0,
       });
-
+  
       mapInstance.on('load', () => {
-        if (!bounds.isEmpty()) {
-          mapInstance.fitBounds(bounds, { padding: 50 });
-        }
-
-        // Habilitar el relieve (Terrain)
-        mapInstance.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-
-        // Agregar una fuente de elevación para el relieve
-        mapInstance.addSource('mapbox-dem', {
-          type: 'raster-dem',
-          url: 'mapbox://mapbox.terrain-rgb',
-          tileSize: 512,
-          maxzoom: 14,
-        });
-
-        // Agregar los polígonos al mapa
-        lotes.forEach((lote) => {
+        const bounds = new mapboxgl.LngLatBounds();
+  
+        lotes.forEach((lote, index) => {
           if (lote.coordinates.length > 0) {
-            console.log(`Agregando lote: ${lote.id}`, lote.coordinates); // Depuración
+            // Agregar fuente y capa para el polígono
             mapInstance.addSource(`lote-${lote.id}`, {
               type: 'geojson',
               data: {
@@ -108,11 +77,10 @@ export const Map = () => {
                   type: 'Polygon',
                   coordinates: lote.coordinates,
                 },
-                properties: { ...lote }, // Agregar propiedades del lote
+                properties: { ...lote },
               },
             });
-
-            // Capa de relleno
+  
             mapInstance.addLayer({
               id: `lote-fill-${lote.id}`,
               type: 'fill',
@@ -120,11 +88,10 @@ export const Map = () => {
               layout: {},
               paint: {
                 'fill-color': '#088',
-                'fill-opacity': 0.25, // Más transparencia
+                'fill-opacity': 0.5,
               },
             });
-
-            // Capa de borde
+  
             mapInstance.addLayer({
               id: `lote-line-${lote.id}`,
               type: 'line',
@@ -135,79 +102,65 @@ export const Map = () => {
                 'line-width': 2,
               },
             });
-
+  
+            // Cambiar el tono del polígono al hacer hover
+            mapInstance.on('mouseenter', `lote-fill-${lote.id}`, () => {
+              mapInstance.setPaintProperty(`lote-fill-${lote.id}`, 'fill-opacity', 0.8);
+            });
+  
+            mapInstance.on('mouseleave', `lote-fill-${lote.id}`, () => {
+              mapInstance.setPaintProperty(`lote-fill-${lote.id}`, 'fill-opacity', 0.5);
+            });
+  
             // Calcular el centro del polígono
             const center = lote.coordinates[0].reduce(
               (acc, coord) => [acc[0] + coord[0], acc[1] + coord[1]],
               [0, 0]
             ).map((val) => val / lote.coordinates[0].length);
-
-            // Crear un marcador en el centro del polígono
-            const loteId = lote.id.replace('lote_', ''); // Eliminar el prefijo "lote_"
-            const marker = new mapboxgl.Marker({
-              element: createCustomMarker(loteId), // Crear un marcador personalizado
-            })
+  
+            // Crear un marcador personalizado con solo el número del lote
+            const markerElement = document.createElement('div');
+            markerElement.style.fontSize = '14px';
+            markerElement.style.fontWeight = 'bold';
+            markerElement.style.color = 'white'; // Cambiar el color del texto a blanco
+            markerElement.style.textShadow = '0px 0px 3px black'; // Agregar sombra para mejor visibilidad
+            markerElement.textContent = index + 1; // Número del lote
+  
+            new mapboxgl.Marker({ element: markerElement })
               .setLngLat(center)
               .addTo(mapInstance);
-
-            // Detectar clics en el lote
+  
+            // Extender los límites del mapa
+            lote.coordinates[0].forEach((coord) => {
+              bounds.extend(coord);
+            });
+  
+            // Detectar clics en el polígono
             mapInstance.on('click', `lote-fill-${lote.id}`, (e) => {
               const properties = e.features[0].properties;
-              setSelectedLote(properties); // Guardar el lote seleccionado
+              setSelectedLote(properties);
             });
-
-            // Resaltar el polígono al hacer hover
-            mapInstance.on('mouseenter', `lote-fill-${lote.id}`, () => {
-              mapInstance.setPaintProperty(`lote-fill-${lote.id}`, 'fill-opacity', 0.5); // Aumentar la opacidad
-            });
-
-            mapInstance.on('mouseleave', `lote-fill-${lote.id}`, () => {
-              mapInstance.setPaintProperty(`lote-fill-${lote.id}`, 'fill-opacity', 0.25); // Restaurar la opacidad
-            });
-          } else {
-            console.warn(`Coordenadas inválidas para el lote: ${lote.id}`, lote.coordinates);
           }
         });
-
-        // Ocultar el ícono de carga cuando el mapa esté listo
+  
+        // Ajustar el mapa para que todos los polígonos sean visibles
+        if (!bounds.isEmpty()) {
+          mapInstance.fitBounds(bounds, {
+            padding: 50,
+            duration: 2000,
+          });
+        }
+  
         setLoading(false);
       });
-
-      // Reducir la velocidad del zoom
-      mapInstance.scrollZoom.setZoomRate(0.1); // Hacer el zoom más lento
-
-      // Guardar la última vista al desmontar el mapa
-      mapInstance.on('moveend', () => {
-        const center = mapInstance.getCenter();
-        const zoom = mapInstance.getZoom();
-        setLastView({ center: [center.lng, center.lat], zoom: zoom - 1 }); // Reducir el zoom en 1
-      });
-
+  
       setMap(mapInstance);
-
-      return () => mapInstance.remove(); // Limpiar el mapa al desmontar el componente
+  
+      return () => mapInstance.remove();
     }
   }, [lotes]);
-
-  // Crear un marcador personalizado con el ID del lote
-  const createCustomMarker = (text) => {
-    const marker = document.createElement('div');
-    marker.style.backgroundColor = 'transparent'; // Fondo transparente
-    marker.style.border = 'none'; // Sin borde
-    marker.style.width = 'auto'; // Ajustar al contenido
-    marker.style.height = 'auto'; // Ajustar al contenido
-    marker.style.display = 'flex';
-    marker.style.justifyContent = 'center';
-    marker.style.alignItems = 'center';
-    marker.style.fontSize = '14px'; // Tamaño de fuente
-    marker.style.fontWeight = 'bold';
-    marker.style.color = 'white'; // Letras blancas
-    marker.textContent = text; // Texto del marcador
-    return marker;
-  };
-
   return (
-    <div style={{ position: 'relative', width: '100%', height: '500px' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
       {loading && (
         <div
           style={{
@@ -221,7 +174,49 @@ export const Map = () => {
           <CircularProgress />
         </div>
       )}
-      <div id="map" style={{ width: '100%', height: '100%' }}></div>
+      <div id="map"></div>
+
+      {/* Barra de controles en la parte inferior */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1001,
+          display: 'flex',
+          gap: '10px',
+          background: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: '8px',
+          padding: '10px',
+        }}
+      >
+        <IconButton onClick={() => map.panBy([-100, 0])} color="primary">
+          <ArrowBack />
+        </IconButton>
+        <IconButton onClick={() => map.panBy([0, -100])} color="primary">
+          <ArrowUpward />
+        </IconButton>
+        <IconButton onClick={() => map.panBy([0, 100])} color="primary">
+          <ArrowDownward />
+        </IconButton>
+        <IconButton onClick={() => map.panBy([100, 0])} color="primary">
+          <ArrowForward />
+        </IconButton>
+        <IconButton onClick={() => map.zoomIn()} color="secondary">
+          <Add />
+        </IconButton>
+        <IconButton onClick={() => map.zoomOut()} color="secondary">
+          <Remove />
+        </IconButton>
+        <IconButton onClick={() => map.setBearing(map.getBearing() + 10)} color="primary">
+          <RotateRight />
+        </IconButton>
+        <IconButton onClick={() => map.setBearing(map.getBearing() - 10)} color="primary">
+          <RotateLeft />
+        </IconButton>
+      </div>
+
       {selectedLote && (
         <Card
           style={{
@@ -235,12 +230,14 @@ export const Map = () => {
           <CardContent>
             <Typography variant="h6">Información del Lote</Typography>
             <Typography variant="body2">ID: {selectedLote.id}</Typography>
-            <Typography variant="body2">Propiedad: {selectedLote.propiedad || 'N/A'}</Typography>
+            <Typography variant="body2">
+              Propiedad: {selectedLote.propiedad || 'N/A'}
+            </Typography>
             <Button
               variant="contained"
               color="secondary"
               style={{ marginTop: '10px' }}
-              onClick={() => setSelectedLote(null)} // Cerrar la tarjeta
+              onClick={() => setSelectedLote(null)}
             >
               Cerrar
             </Button>

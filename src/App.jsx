@@ -4,8 +4,8 @@ function App() {
   
   return (
     <>
-      <div style={{ marginTop: '20px' }}>
-        <h2>Mapa de Lotes</h2>
+      <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+
         <Map />
       </div>
     </>
