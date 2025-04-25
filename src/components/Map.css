@@ -1,12 +1,10 @@
 #map {
-    width: calc(100% - 20px); /* Ajustar el ancho para incluir el margen */
-    height: calc(100vh - 20px); /* Ajustar la altura para incluir el margen */
-    margin: 10px; /* Margen alrededor del mapa */
-    border-radius: 5px; /* Bordes redondeados */
-    overflow: hidden; /* Asegura que el contenido no se desborde */
-    box-sizing: border-box; /* Incluye el borde y el padding en el cálculo del ancho */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Opcional: sombra para un diseño más atractivo */
-}
+    width: 100vw; /* Ocupa el 100% del ancho de la ventana */
+    height: 100vh; /* Ocupa el 100% de la altura de la ventana */
+    margin: 0; /* Elimina márgenes */
+    padding: 0; /* Elimina relleno */
+    box-sizing: border-box; /* Asegura que el padding y el borde no afecten las dimensiones */
+  }
 
 /* Opcional: estilos para mejorar la experiencia de usuario */
 .mapboxgl-canvas {

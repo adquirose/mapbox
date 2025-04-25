@@ -160,7 +160,7 @@ export const Map = () => {
     }
   }, [lotes]);
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       {loading && (
         <div
           style={{
