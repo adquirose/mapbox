@@ -5,7 +5,7 @@ function App() {
   
   return (
     <AppTheme>
-      <div style={{ position: 'relative', width: '100%', height: '100dvh' }}>
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         <Map />
       </div>
     </AppTheme>

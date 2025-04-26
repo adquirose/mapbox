@@ -1,6 +1,6 @@
 #map {
-    width: 100vw; /* Ocupa el 100% del ancho de la ventana */
-    height: 100vh; /* Ocupa el 100% de la altura de la ventana */
+    width: 100%; /* Ocupa el 100% del ancho de la ventana */
+    height: 100%; /* Ocupa el 100% de la altura de la ventana */
     margin: 0; /* Elimina márgenes */
     padding: 0; /* Elimina relleno */
     box-sizing: border-box; /* Asegura que el padding y el borde no afecten las dimensiones */
