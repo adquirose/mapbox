@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, Add, Remove, RotateLeft, RotateRight } from '@mui/icons-material';
-// import 'mapbox-gl/dist/mapbox-gl.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import './Map.css';
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
