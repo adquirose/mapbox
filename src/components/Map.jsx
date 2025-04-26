@@ -56,7 +56,7 @@ export const Map = () => {
     if (lotes.length > 0) {
       const mapInstance = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/satellite-v9',
+        style: 'mapbox://styles/mapbox/satellite-streets-v12',
         center: [-72.2524, -45.3358],
         zoom: 10,
         pitch: 60,
@@ -65,6 +65,14 @@ export const Map = () => {
   
       mapInstance.on('load', () => {
         const bounds = new mapboxgl.LngLatBounds();
+  
+        // Crear un marcador central para cuando el zoom sea <= 10
+        const centralMarker = new mapboxgl.Marker({ color: 'red' })
+          .setLngLat([-72.2524, -45.3358])
+          .addTo(mapInstance);
+  
+        // Inicialmente ocultar el marcador central
+        centralMarker.getElement().style.display = 'none';
   
         lotes.forEach((lote, index) => {
           if (lote.coordinates.length > 0) {
@@ -88,7 +96,7 @@ export const Map = () => {
               layout: {},
               paint: {
                 'fill-color': '#088',
-                'fill-opacity': 0.5,
+                'fill-opacity': 0.2,
               },
             });
   
@@ -98,7 +106,7 @@ export const Map = () => {
               source: `lote-${lote.id}`,
               layout: {},
               paint: {
-                'line-color': '#000',
+                'line-color': '#FFF',
                 'line-width': 2,
               },
             });
@@ -118,15 +126,15 @@ export const Map = () => {
               [0, 0]
             ).map((val) => val / lote.coordinates[0].length);
   
-            // Crear un marcador personalizado con solo el número del lote
+            // Crear un marcador personalizado con el ID del lote sin el prefijo "lote_"
             const markerElement = document.createElement('div');
             markerElement.style.fontSize = '14px';
             markerElement.style.fontWeight = 'bold';
-            markerElement.style.color = 'white'; // Cambiar el color del texto a blanco
-            markerElement.style.textShadow = '0px 0px 3px black'; // Agregar sombra para mejor visibilidad
-            markerElement.textContent = index + 1; // Número del lote
+            markerElement.style.color = 'white';
+            markerElement.style.textShadow = '0px 0px 3px black';
+            markerElement.textContent = lote.id.replace('lote_', '');
   
-            new mapboxgl.Marker({ element: markerElement })
+            const marker = new mapboxgl.Marker({ element: markerElement })
               .setLngLat(center)
               .addTo(mapInstance);
   
@@ -139,6 +147,29 @@ export const Map = () => {
             mapInstance.on('click', `lote-fill-${lote.id}`, (e) => {
               const properties = e.features[0].properties;
               setSelectedLote(properties);
+            });
+  
+            // Escuchar cambios en el zoom
+            mapInstance.on('zoom', () => {
+              const currentZoom = mapInstance.getZoom();
+  
+              if (currentZoom <= 12) {
+                // Ocultar polígonos y marcadores
+                mapInstance.setLayoutProperty(`lote-fill-${lote.id}`, 'visibility', 'none');
+                mapInstance.setLayoutProperty(`lote-line-${lote.id}`, 'visibility', 'none');
+                marker.getElement().style.display = 'none';
+  
+                // Mostrar el marcador central
+                centralMarker.getElement().style.display = 'block';
+              } else {
+                // Mostrar polígonos y marcadores
+                mapInstance.setLayoutProperty(`lote-fill-${lote.id}`, 'visibility', 'visible');
+                mapInstance.setLayoutProperty(`lote-line-${lote.id}`, 'visibility', 'visible');
+                marker.getElement().style.display = 'block';
+  
+                // Ocultar el marcador central
+                centralMarker.getElement().style.display = 'none';
+              }
             });
           }
         });
@@ -158,7 +189,7 @@ export const Map = () => {
   
       return () => mapInstance.remove();
     }
-  }, [lotes]);
+  }, [lotes])
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       {loading && (
