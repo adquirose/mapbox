@@ -4,7 +4,7 @@ import { Box } from '@mui/material'; // Importar el componente Box de Material U
 function App() {
   return (
     <AppTheme>
-      <Box sx={{ position: 'relative', width: '100%', height: '100%', backgroundColor: '#f0f0f0', paddingBottom:{xs:'35px',md:0} }}>
+      <Box sx={{ position: 'relative', width: '100%', height: '100%', backgroundColor: '#f0f0f0', paddingBottom:{xs:0} }}>
         <Map />
       </Box>
     </AppTheme>
