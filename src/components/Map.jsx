@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import { ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, Add, Remove, RotateLeft, RotateRight } from '@mui/icons-material';
+import { Box } from '@mui/material';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './Map.css';
 
@@ -191,10 +192,10 @@ export const Map = () => {
     }
   }, [lotes])
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100%', minHeight:'100vh',backgroundColor: 'gray' }}>
+    <Box sx={{ position: 'relative', width: '100vw', height: '100%', minHeight:'100vh',backgroundColor: 'gray' }}>
       {loading && (
-        <div
-          style={{
+        <Box
+          sx={{
             position: 'absolute',
             top: '50%',
             left: '50%',
@@ -203,13 +204,13 @@ export const Map = () => {
           }}
         >
           <CircularProgress />
-        </div>
+        </Box>
       )}
-      <div style={{width:'100%', height:'100%'}} id="map"></div>
+      <Box sx={{width:'100%', height:'100%'}} id="map"></Box>
 
       {/* Barra de controles en la parte inferior */}
-      <div
-        style={{
+      <Box
+        sx={{
           position: 'absolute',
           bottom: '5px',
           left: '50%',
@@ -246,7 +247,7 @@ export const Map = () => {
         <IconButton onClick={() => map.setBearing(map.getBearing() - 10)} color="primary">
           <RotateLeft />
         </IconButton>
-      </div>
+      </Box>
 
       {selectedLote && (
         <Card
@@ -275,6 +276,6 @@ export const Map = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+    </Box>
   );
 };
