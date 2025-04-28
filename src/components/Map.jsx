@@ -96,7 +96,7 @@ export const Map = () => {
               layout: {},
               paint: {
                 'fill-color': '#088',
-                'fill-opacity': 0.2,
+                'fill-opacity': 0.1,
               },
             });
   
@@ -113,11 +113,11 @@ export const Map = () => {
   
             // Cambiar el tono del polígono al hacer hover
             mapInstance.on('mouseenter', `lote-fill-${lote.id}`, () => {
-              mapInstance.setPaintProperty(`lote-fill-${lote.id}`, 'fill-opacity', 0.8);
+              mapInstance.setPaintProperty(`lote-fill-${lote.id}`, 'fill-opacity', 0.5);
             });
   
             mapInstance.on('mouseleave', `lote-fill-${lote.id}`, () => {
-              mapInstance.setPaintProperty(`lote-fill-${lote.id}`, 'fill-opacity', 0.5);
+              mapInstance.setPaintProperty(`lote-fill-${lote.id}`, 'fill-opacity', 0.1);
             });
   
             // Calcular el centro del polígono
