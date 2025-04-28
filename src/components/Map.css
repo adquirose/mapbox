@@ -1,10 +1,12 @@
 :root {
-  --vh: 100vh; /* Variable para la altura visible */
+  background-color: blue;
+  height: 100dvh;
 }
 
 #map {
   width: 100%;
-  height: calc(var(--vh) - 60px); /* Ajusta 60px al tamaño de la barra inferior */
+  height: 100%;;
+   /* Ajusta 60px al tamaño de la barra inferior */
 }
 
 /* Opcional: estilos para mejorar la experiencia de usuario */
