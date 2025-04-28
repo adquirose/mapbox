@@ -2,10 +2,9 @@ import { AppTheme } from './theme/AppTheme'; // Importar el tema de la aplicaci√
 import { Map } from './components/Map'; // Importar el componente del mapa
 
 function App() {
-  
   return (
     <AppTheme>
-      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div style={{ position: 'relative', width: '100%', height: '100%', backgroundColor: '#f0f0f0' }}>
         <Map />
       </div>
     </AppTheme>

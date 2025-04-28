@@ -191,7 +191,7 @@ export const Map = () => {
     }
   }, [lotes])
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+    <div style={{ position: 'relative', width: '100vw', height: '100%' }}>
       {loading && (
         <div
           style={{
@@ -211,7 +211,7 @@ export const Map = () => {
       <div
         style={{
           position: 'absolute',
-          bottom: '10px',
+          bottom: '60px',
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 1001,
@@ -252,7 +252,7 @@ export const Map = () => {
         <Card
           style={{
             position: 'absolute',
-            bottom: '20px',
+            bottom: '50%',
             left: '20px',
             zIndex: 1000,
             width: '300px',

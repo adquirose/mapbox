@@ -1,11 +1,6 @@
-:root {
-  background-color: blue;
-  height: 100dvh;
-}
-
 #map {
   width: 100%;
-  height: 100%;;
+  height: calc(100% - 60px); /* Ajusta 60px al tamaño de la barra inferior */
    /* Ajusta 60px al tamaño de la barra inferior */
 }
 
