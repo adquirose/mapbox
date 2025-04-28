@@ -191,7 +191,7 @@ export const Map = () => {
     }
   }, [lotes])
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100%' }}>
+    <div id="container-map">
       {loading && (
         <div
           style={{
@@ -205,13 +205,13 @@ export const Map = () => {
           <CircularProgress />
         </div>
       )}
-      <div id="map"></div>
+      <div style={{width:'100%', height:'100%'}} id="map"></div>
 
       {/* Barra de controles en la parte inferior */}
       <div
         style={{
           position: 'absolute',
-          bottom: '60px',
+          bottom: '5px',
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 1001,
