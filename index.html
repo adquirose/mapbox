@@ -5,10 +5,31 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Vite + React</title>
+    <title>lanube360</title>
+    <style>
+      @-ms-viewport { width:device-width; }
+      @media only screen and (min-device-width:800px) { 
+        html { overflow:hidden; } 
+      }
+      html { 
+        height: 100%;
+      }
+      body { 
+        height:100%;
+        margin:0; 
+        padding:0; 
+      }
+      #root {
+        height:100%;
+        width:100%;
+      }
+      .box-shadow{
+        box-shadow: 0px 5px 5px rgba(0,0,0,0.2);
+      }
+    </style>
   </head>
   <body>
-    <div id="root" style="height: 100vh;"></div>
+    <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
