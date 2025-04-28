@@ -1,12 +1,10 @@
-#map {
-  width: 100%;
-  height: calc(100vh - 80px); /* Ajusta 60px al tamaño de la barra inferior */
+:root {
+  --vh: 100vh; /* Variable para la altura visible */
 }
 
-@media (max-width: 768px) {
-  #map {
-    height: calc(100vh - 80px); /* Ajusta 80px si la barra inferior es más grande en móviles */
-  }
+#map {
+  width: 100%;
+  height: calc(var(--vh) - 60px); /* Ajusta 60px al tamaño de la barra inferior */
 }
 
 /* Opcional: estilos para mejorar la experiencia de usuario */
