@@ -14,12 +14,13 @@ import {
   ArrowBack,
   ArrowForward,
   Add,
+  Close,
   Remove,
   RotateLeft,
   RotateRight,
 } from "@mui/icons-material";
 import HomeIcon from "@mui/icons-material/Home";
-import { Box } from "@mui/material";
+import { Box, Tab, Tabs } from "@mui/material";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./Map.css";
 
@@ -55,7 +56,7 @@ export const Map = () => {
   const [lotes, setLotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLote, setSelectedLote] = useState(null);
-
+  const [selectedTab, setSelectedTab] = useState(0); // Estado para la pestaña seleccionada
   useEffect(() => {
     const fetchLotes = async () => {
       try {
@@ -374,54 +375,233 @@ export const Map = () => {
       </Box>
 
       {selectedLote && (
-        <Card
-          style={{
-            position: "absolute",
-            bottom: "50%",
-            left: "20px",
-            zIndex: 1000,
-            width: "300px",
-          }}
-        >
-          <CardContent>
-            <Typography variant="h6">{`Lote ${selectedLote.id.replace(
-              "lote_",
-              ""
-            )}`}</Typography>
-            <Typography variant="body2">
-              <strong>Estado:</strong> {selectedLote.estado || "N/A"}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Superficie:</strong> {selectedLote.superficie || "N/A"} Ha.
-            </Typography>
-            <Typography variant="body2">
-              <strong>Valor:</strong> ${selectedLote.valor || "N/A"}
-            </Typography>
-            <Button
-              variant="contained"
-              color="secondary"
-              style={{ marginTop: "10px" }}
-              onClick={() => {
-                map.setPaintProperty(
-                  `lote-fill-${selectedLote.id}`,
-                  "fill-opacity",
-                  0.1
-                ); // Restaurar opacidad
-                setSelectedLote(null);
-                const bounds = new mapboxgl.LngLatBounds();
-                lotes.forEach((lote) => {
-                  lote.coordinates[0].forEach((coord) => bounds.extend(coord));
-                });
-                if (!bounds.isEmpty()) {
-                  map.fitBounds(bounds, { padding: 50, duration: 2000 });
-                }
-              }}
-            >
-              Cerrar
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+        <>
+          {/* Capa de bloqueo del mapa */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo semitransparente
+              zIndex: 999, // Debajo de la tarjeta
+            }}
+            onClick={() => {
+              // Cerrar la tarjeta al hacer clic en la capa de bloqueo
+              map.setPaintProperty(
+                `lote-fill-${selectedLote.id}`,
+                "fill-opacity",
+                0.1
+              ); // Restaurar opacidad
+              setSelectedLote(null);
+            }}
+          ></div>
+          {/* Tarjeta */}
+          <Card
+            style={{
+              position: "absolute",
+              top: "50%", // Centrado verticalmente
+              left: "10px", // A 10px de la izquierda
+              transform: "translateY(-50%)", // Ajuste para centrar verticalmente
+              zIndex: 1000,
+              width: "300px",
+              minHeight: "fit-content", // Altura mínima ajustada al contenido
+              overflow:"visible"
+            }}
+          >
+            <CardContent>
+              {/* Botón de cerrar estilizado */}
+<IconButton
+  onClick={() => {
+    map.setPaintProperty(
+      `lote-fill-${selectedLote.id}`,
+      "fill-opacity",
+      0.1
+    ); // Restaurar opacidad
+    setSelectedLote(null);
+    const bounds = new mapboxgl.LngLatBounds();
+    lotes.forEach((lote) => {
+      lote.coordinates[0].forEach((coord) => bounds.extend(coord));
+    });
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds, { padding: 50, duration: 2000 });
+    }
+  }}
+  style={{
+    position: "absolute",
+    top: "-15px", // Más arriba de la tarjeta
+    right: "-15px", // Más a la derecha de la tarjeta
+    zIndex: 1002,
+    backgroundColor: "white", // Fondo blanco
+    border: "1px solid #ccc", // Borde gris claro
+    borderRadius: "50%", // Forma circular
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Sombra ligera
+    padding: "5px",
+  }}
+>
+  <Close style={{ fontSize: "16px", color: "#333" }} /> {/* Ícono de cerrar */}
+</IconButton>
+
+              {/* Pestañas */}
+              <Tabs
+                value={selectedTab}
+                onChange={(e, newValue) => setSelectedTab(newValue)}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="fullWidth"
+              >
+                <Tab label="Info" />
+                <Tab label="Contacto" />
+              </Tabs>
+
+              {/* Contenido de las pestañas */}
+              {selectedTab === 0 && (
+                <div
+                  style={{
+                    marginTop: "20px",
+                    minHeight: "250px", // Igualar la altura mínima a la de "Contacto"
+                  }}
+                >
+                  {/* Sección de información */}
+                  <Typography variant="h6">{`Lote ${selectedLote.id.replace(
+                    "lote_",
+                    ""
+                  )}`}</Typography>
+                  <Typography variant="body2">
+                    <strong>Estado:</strong> {selectedLote.estado || "N/A"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Superficie:</strong> {selectedLote.superficie || "N/A"} Ha.
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Valor:</strong> ${selectedLote.valor || "N/A"}
+                  </Typography>
+                </div>
+              )}
+
+              {selectedTab === 1 && (
+                <div
+                  style={{
+                    marginTop: "10px",
+                    minHeight: "250px", // Igualar la altura mínima a la de "Info"
+                  }}
+                >
+                  {/* Sección de contacto */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      console.log("Formulario enviado");
+                    }}
+                  >
+                    {/* Campo Nombre */}
+                    <div style={{ marginBottom: "8px" }}>
+                      <label htmlFor="nombre" style={{ fontSize: "12px", display: "block" }}>
+                        Nombre:
+                      </label>
+                      <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        required
+                        style={{
+                          width: "100%",
+                          padding: "6px",
+                          marginTop: "3px",
+                          borderRadius: "4px",
+                          border: "1px solid #ccc",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </div>
+
+                    {/* Campo RUT */}
+                    <div style={{ marginBottom: "8px" }}>
+                      <label htmlFor="rut" style={{ fontSize: "12px", display: "block" }}>
+                        RUT:
+                      </label>
+                      <input
+                        type="text"
+                        id="rut"
+                        name="rut"
+                        required
+                        pattern="^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$"
+                        title="Formato válido: 12.345.678-9"
+                        style={{
+                          width: "100%",
+                          padding: "6px",
+                          marginTop: "3px",
+                          borderRadius: "4px",
+                          border: "1px solid #ccc",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </div>
+
+                    {/* Campo Email */}
+                    <div style={{ marginBottom: "8px" }}>
+                      <label htmlFor="email" style={{ fontSize: "12px", display: "block" }}>
+                        Email:
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        style={{
+                          width: "100%",
+                          padding: "6px",
+                          marginTop: "3px",
+                          borderRadius: "4px",
+                          border: "1px solid #ccc",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </div>
+
+                    {/* Campo Teléfono */}
+                    <div style={{ marginBottom: "8px" }}>
+                      <label htmlFor="telefono" style={{ fontSize: "12px", display: "block" }}>
+                        Teléfono:
+                      </label>
+                      <input
+                        type="tel"
+                        id="telefono"
+                        name="telefono"
+                        required
+                        pattern="^\+?\d{9,15}$"
+                        title="Debe ser un número de teléfono válido"
+                        style={{
+                          width: "100%",
+                          padding: "6px",
+                          marginTop: "3px",
+                          borderRadius: "4px",
+                          border: "1px solid #ccc",
+                          fontSize: "12px",
+                        }}
+                      />
+                    </div>
+
+                    {/* Botón de Enviar */}
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      style={{
+                        width: "100%",
+                        padding: "6px",
+                        fontSize: "12px",
+                      }}
+                    >
+                      Enviar
+                    </Button>
+                  </form>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+    )}
     </Box>
   );
 };
