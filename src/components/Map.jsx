@@ -93,7 +93,7 @@ export const Map = () => {
     if (lotes.length > 0) {
       const mapInstance = new mapboxgl.Map({
         container: "map",
-        style: "mapbox://styles/adquirose/cma1rg2im009y01qx64kj8k1j",
+        style: "mapbox://styles/adquirose/cma372eac000h01s7es0e7rli",
         center: [-72.2524, -45.3358],
         zoom: 10,
         pitch: 0,
