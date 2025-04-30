@@ -1,0 +1,202 @@
+﻿<krpano version="1.18" title="El Malito" onstart="jscall(reactKrpano.onStart())">
+	 <!-- <events onnewscene="jscall(calc('reactKrpano.nameScene(`' + get(xml.scene) + '`)'));" /> -->
+	<!-- set skin settings: bingmaps? gyro? thumbnails? tooltips? -->
+	<skin_settings maps="false"
+	               maps_type="bing"
+	               maps_bing_api_key=""
+	               maps_zoombuttons="false"
+	               gyro="true"
+	               title="true"
+	               thumbs="true"
+	               thumbs_width="120" thumbs_height="55" thumbs_padding="10" thumbs_crop="0|40|240|160"
+	               thumbs_opened="true"
+	               thumbs_text="true"
+	               thumbs_dragging="true"
+	               thumbs_onhoverscrolling="false"
+	               thumbs_scrollbuttons="false"
+	               thumbs_scrollindicator="false"
+	               thumbs_loop="false"
+	               tooltips_thumbs="false"
+	               tooltips_hotspots="false"
+	               tooltips_mapspots="false"
+	               loadscene_flags="MERGE"
+	               loadscene_blend="BLEND(0.5)"
+	               controlbar_offset="20"
+	               />
+
+
+	<!-- set optional skin logo url -->
+     
+     <style name="skin_hotspotstyle4" scale="0.5" handcursor="false" edge="bottomleft" align="bottom" alpha="1"/>
+  
+	 <style name="hs" scale="0.4" zorder="50" edge="bottom" align="bottom" alpha="1"/>
+
+	 <style name="lupa" scale="0.6" distorted="false" oy="0" handcursor="true" zorder="50" />
+
+
+	 <textstyle name="default"
+
+
+
+	           font="Helvetica" fontsize.no-mobile="14" fontsize.mobile="14" bold="false"
+
+
+
+	           background="true" backgroundcolor="0x211915" backgroundalpha="0.667"
+
+
+
+	           border="true" borderwidth="2" bordercolor="0xFFFFFF" roundedge="1"
+
+
+
+	           textcolor="0xFFFFFF"
+
+
+
+	           padding="6 10"
+
+
+
+	           textalign="center"
+
+
+
+	           yoffset.no-touch="-5"
+
+
+
+	           yoffset.touch="-40"
+
+
+
+	           />
+
+	<action name="startup">
+		if(startscene === null, copy(startscene,scene[0].name));
+		loadscene(get(startscene), null, MERGE);
+	</action>
+
+
+	<scene name="scene_76" title="Vista 1" onstart="" thumburl="panos/76.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="18.336" vlookat="12.347" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/76.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/76.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+
+	
+
+	<scene name="scene_79" title="Vista 2" onstart="" thumburl="panos/79.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="11.296" vlookat="20.587" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/79.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/79.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+
+	<scene name="scene_82" title="Vista 3" onstart="" thumburl="panos/82.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="232.824" vlookat="14.226" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/82.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/82.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+
+	<scene name="scene_91" title="Vista 4" onstart="" thumburl="panos/91.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="-128.273" vlookat="17.247" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/91.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/91.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+
+	<scene name="scene_95" title="Vista 5" onstart="" thumburl="panos/95.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="220.341" vlookat="15.987" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/95.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/95.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+
+	<scene name="scene_96" title="Vista 6" onstart="" thumburl="panos/96.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="209.177" vlookat="12.347" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/96.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/96.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+
+	<scene name="scene_201" title="Vista 7" onstart="" thumburl="panos/201.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="187.957" vlookat="12.347" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/201.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/201.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+
+	<scene name="scene_205" title="Vista 8" onstart="" thumburl="panos/205.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="319.563" vlookat="12.347" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/205.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/205.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+
+	<scene name="scene_207" title="Vista 9" onstart="" thumburl="panos/207.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<view hlookat="911.255" vlookat="12.347" fovtype="MFOV" fov="115.000" maxpixelzoom="2.0" fovmin="70" fovmax="130" limitview="range" hlookatmin="-180" hlookatmax="180" vlookatmin="-33" vlookatmax="90" />
+
+		<preview url="panos/207.tiles/preview.jpg" />
+
+		<image>
+			<cube url="panos/207.tiles/pano_%s.jpg" />
+		</image>
+
+	</scene>
+	
+	
+
+<style name="animation-hotspot" url="skin/spots/spot0.png" crop="0|0|64|64" framewidth="64" frameheight="64" frame="0" lastframe="19" scale="0.8" onloaded="hotspot_animate();"/>
+<action name="hotspot_animate"> inc(frame,1,get(lastframe),0); mul(ypos,frame,frameheight); txtadd(crop,'0|',get(ypos),'|',get(framewidth),'|',get(frameheight)); delayedcall(0.03, if(loaded, hotspot_animate() ) ); </action>
+
+
+	
+
+
+
+
+</krpano>

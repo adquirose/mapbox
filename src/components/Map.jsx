@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom/client"; // Importar ReactDOMServer
 import mapboxgl from "mapbox-gl";
 import { collection, getDocs } from "firebase/firestore";
 import { firebaseDB } from "../firebase/config";
-import CircularProgress from "@mui/material/CircularProgress";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
 import {
   ArrowUpward,
   ArrowDownward,
@@ -18,9 +13,11 @@ import {
   Remove,
   RotateLeft,
   RotateRight,
+  PhotoCamera
 } from "@mui/icons-material";
 import HomeIcon from "@mui/icons-material/Home";
-import { Box, Tab, Tabs } from "@mui/material";
+import { IconButton, Button, Typography, CardContent, Card, CircularProgress, Dialog, DialogContent, Fade, Box, Tab, Tabs } from "@mui/material";
+import { Krpano } from "./Krpano"; 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./Map.css";
 
@@ -51,12 +48,34 @@ const calculateCentroid = (coordinates) => {
   return [cx, cy];
 };
 
+// Componente de transición para el diálogo
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Fade ref={ref} {...props} />;
+});
+
 export const Map = () => {
   const [map, setMap] = useState(null);
   const [lotes, setLotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLote, setSelectedLote] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0); // Estado para la pestaña seleccionada
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Estado para controlar el diálogo
+  const [selectedScene, setSelectedScene] = useState(null);
+
+  // Manejar el atributo `inert` en el contenedor principal
+  useEffect(() => {
+    const rootElement = document.getElementById("root");
+    if (isDialogOpen) {
+      rootElement.setAttribute("inert", "true"); // Agregar `inert` cuando el diálogo esté abierto
+    } else {
+      rootElement.removeAttribute("inert"); // Eliminar `inert` cuando el diálogo esté cerrado
+    }
+
+    return () => {
+      rootElement.removeAttribute("inert"); // Asegurarse de limpiar el atributo al desmontar
+    };
+  }, [isDialogOpen]);
+  
   useEffect(() => {
     const fetchLotes = async () => {
       try {
@@ -77,6 +96,9 @@ export const Map = () => {
             id: doc.id,
             ...data,
             coordinates,
+            len: data.len || 0, // Valor predeterminado para `len`
+            reflen: data.reflen || 0, // Valor predeterminado para `reflen`
+            class: data.class || "default", // Valor predeterminado para `class`
           };
         });
 
@@ -93,7 +115,7 @@ export const Map = () => {
     if (lotes.length > 0) {
       const mapInstance = new mapboxgl.Map({
         container: "map",
-        style: "mapbox://styles/adquirose/cma372eac000h01s7es0e7rli",
+        style: "mapbox://styles/adquirose/cma38r675000h01s1bw4q23zi",
         center: [-72.2524, -45.3358],
         zoom: 10,
         pitch: 0,
@@ -101,7 +123,48 @@ export const Map = () => {
       });
 
       mapInstance.on("load", () => {
+        
         const bounds = new mapboxgl.LngLatBounds();
+             // Función para crear un marcador con un ícono de cámara
+      const createPhotoMarker = (lngLat, sceneName) => {
+        const photoMarkerElement = document.createElement("div");
+        photoMarkerElement.style.display = "flex";
+        photoMarkerElement.style.alignItems = "center";
+        photoMarkerElement.style.justifyContent = "center";
+        photoMarkerElement.style.width = "40px";
+        photoMarkerElement.style.height = "40px";
+        photoMarkerElement.style.borderRadius = "50%";
+        photoMarkerElement.style.backgroundColor = "white";
+        photoMarkerElement.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.1)";
+        photoMarkerElement.style.cursor = "pointer";
+
+        photoMarkerElement.style.height = "40px";
+        photoMarkerElement.style.borderRadius = "50%";
+        photoMarkerElement.style.backgroundColor = "white";
+        photoMarkerElement.style.boxShadow = "0px 4px 6px rgba(0, 0, 0, 0.1)";
+        photoMarkerElement.style.cursor = "pointer";
+
+        // Renderizar el ícono de Material-UI directamente en el marcador usando ReactDOM.createRoot
+        const root = ReactDOM.createRoot(photoMarkerElement);
+        root.render(<PhotoCamera fontSize="small" style={{ color: "#333" }} />);
+        // Agregar evento de clic al marcador
+        photoMarkerElement.addEventListener("click", () => {
+          setSelectedScene(sceneName); // Establecer la escena seleccionada
+          setIsDialogOpen(true); // Abrir el diálogo
+        });
+
+        // Agregar el marcador al mapa
+        new mapboxgl.Marker({ element: photoMarkerElement })
+          .setLngLat(lngLat) // Coordenadas especificadas
+          .addTo(mapInstance);
+      };
+      
+      // Crear el primer marcador para `scene_207`
+      createPhotoMarker([-72.21877924218475, -45.328054249773366], "scene_207");
+
+      // Crear el segundo marcador para `scene_76`
+      createPhotoMarker([-72.22715432323628, -45.33958015428611], "scene_76"); // Cambia las coordenadas según sea necesario
+     
 
         lotes.forEach((lote) => {
           if (lote.coordinates.length > 0) {
@@ -143,10 +206,6 @@ export const Map = () => {
                 "line-color": "#FFF",
                 "line-width": 1,
               },
-            });
-
-            mapInstance.on("error", (e) => {
-              console.error("Mapbox error:", e.error);
             });
 
             // Calcular el centroide del polígono
@@ -289,7 +348,35 @@ export const Map = () => {
         </Box>
       )}
       <Box sx={{ width: "100%", height: "100%" }} id="map"></Box>
+      {/* Dialog con Krpano */}
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)} // Cerrar el diálogo
+        fullWidth
+        maxWidth="lg" // Tamaño del diálogo
+        slots={{ transition: Transition }} // Usar slots.transition en lugar de TransitionComponent
+      >
+        <DialogContent style={{ position: "relative", padding: 0, height: "500px" }}>
+          {/* Botón de cerrar */}
+          <IconButton
+            onClick={() => setIsDialogOpen(false)}
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              zIndex: 1001,
+              backgroundColor: "white",
+              borderRadius: "50%",
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <Close />
+          </IconButton>
 
+          {/* Componente Krpano */}
+          <Krpano scene={selectedScene}/>
+        </DialogContent>
+      </Dialog>
       {/* Barra lateral para rotación */}
       <Box
         sx={{
@@ -407,41 +494,42 @@ export const Map = () => {
               zIndex: 1000,
               width: "300px",
               minHeight: "fit-content", // Altura mínima ajustada al contenido
-              overflow:"visible"
+              overflow: "visible",
             }}
           >
             <CardContent>
               {/* Botón de cerrar estilizado */}
-<IconButton
-  onClick={() => {
-    map.setPaintProperty(
-      `lote-fill-${selectedLote.id}`,
-      "fill-opacity",
-      0.1
-    ); // Restaurar opacidad
-    setSelectedLote(null);
-    const bounds = new mapboxgl.LngLatBounds();
-    lotes.forEach((lote) => {
-      lote.coordinates[0].forEach((coord) => bounds.extend(coord));
-    });
-    if (!bounds.isEmpty()) {
-      map.fitBounds(bounds, { padding: 50, duration: 2000 });
-    }
-  }}
-  style={{
-    position: "absolute",
-    top: "-15px", // Más arriba de la tarjeta
-    right: "-15px", // Más a la derecha de la tarjeta
-    zIndex: 1002,
-    backgroundColor: "white", // Fondo blanco
-    border: "1px solid #ccc", // Borde gris claro
-    borderRadius: "50%", // Forma circular
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Sombra ligera
-    padding: "5px",
-  }}
->
-  <Close style={{ fontSize: "16px", color: "#333" }} /> {/* Ícono de cerrar */}
-</IconButton>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <IconButton
+                  onClick={() => {
+                    map.setPaintProperty(
+                      `lote-fill-${selectedLote.id}`,
+                      "fill-opacity",
+                      0.1
+                    ); // Restaurar opacidad
+                    setSelectedLote(null);
+                    const bounds = new mapboxgl.LngLatBounds();
+                    lotes.forEach((lote) => {
+                      lote.coordinates[0].forEach((coord) =>
+                        bounds.extend(coord)
+                      );
+                    });
+                    if (!bounds.isEmpty()) {
+                      map.fitBounds(bounds, { padding: 50, duration: 2000 });
+                    }
+                  }}
+                  style={{
+                    backgroundColor: "transparent", // Fondo blanco
+                    border: "none", // Borde gris claro
+                    borderRadius: "50%", // Forma circular
+                    boxShadow: "none", // Sombra ligera
+                    padding: "5px",
+                  }}
+                >
+                  <Close style={{ fontSize: "21px", color: "#333" }} />{" "}
+                  {/* Ícono de cerrar */}
+                </IconButton>
+              </div>
 
               {/* Pestañas */}
               <Tabs
@@ -464,15 +552,15 @@ export const Map = () => {
                   }}
                 >
                   {/* Sección de información */}
-                  <Typography variant="h6">{`Lote ${selectedLote.id.replace(
-                    "lote_",
-                    ""
-                  )}`}</Typography>
-                  <Typography variant="body2">
+                  <Typography variant="h6" style={{ marginBottom: "16px" }}>
+                    {`Lote ${selectedLote.id.replace("lote_", "")}`}
+                  </Typography>
+                  <Typography variant="body2" style={{ marginBottom: "12px" }}>
                     <strong>Estado:</strong> {selectedLote.estado || "N/A"}
                   </Typography>
-                  <Typography variant="body2">
-                    <strong>Superficie:</strong> {selectedLote.superficie || "N/A"} Ha.
+                  <Typography variant="body2" style={{ marginBottom: "12px" }}>
+                    <strong>Superficie:</strong>{" "}
+                    {selectedLote.superficie || "N/A"} Ha.
                   </Typography>
                   <Typography variant="body2">
                     <strong>Valor:</strong> ${selectedLote.valor || "N/A"}
@@ -496,7 +584,10 @@ export const Map = () => {
                   >
                     {/* Campo Nombre */}
                     <div style={{ marginBottom: "8px" }}>
-                      <label htmlFor="nombre" style={{ fontSize: "12px", display: "block" }}>
+                      <label
+                        htmlFor="nombre"
+                        style={{ fontSize: "12px", display: "block" }}
+                      >
                         Nombre:
                       </label>
                       <input
@@ -517,7 +608,10 @@ export const Map = () => {
 
                     {/* Campo RUT */}
                     <div style={{ marginBottom: "8px" }}>
-                      <label htmlFor="rut" style={{ fontSize: "12px", display: "block" }}>
+                      <label
+                        htmlFor="rut"
+                        style={{ fontSize: "12px", display: "block" }}
+                      >
                         RUT:
                       </label>
                       <input
@@ -540,7 +634,10 @@ export const Map = () => {
 
                     {/* Campo Email */}
                     <div style={{ marginBottom: "8px" }}>
-                      <label htmlFor="email" style={{ fontSize: "12px", display: "block" }}>
+                      <label
+                        htmlFor="email"
+                        style={{ fontSize: "12px", display: "block" }}
+                      >
                         Email:
                       </label>
                       <input
@@ -561,7 +658,10 @@ export const Map = () => {
 
                     {/* Campo Teléfono */}
                     <div style={{ marginBottom: "8px" }}>
-                      <label htmlFor="telefono" style={{ fontSize: "12px", display: "block" }}>
+                      <label
+                        htmlFor="telefono"
+                        style={{ fontSize: "12px", display: "block" }}
+                      >
                         Teléfono:
                       </label>
                       <input
@@ -601,7 +701,7 @@ export const Map = () => {
             </CardContent>
           </Card>
         </>
-    )}
+      )}
     </Box>
   );
 };
